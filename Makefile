@@ -7,7 +7,7 @@ dev:
 
 
 lint:
-	poetry run flake8 page_analyzer
+	uv run flake8 page_analyzer
 
 
 PORT ?= 8000
