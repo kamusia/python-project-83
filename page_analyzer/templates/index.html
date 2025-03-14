@@ -9,12 +9,13 @@
 </head>
 <body>
     <div class="container">
-        <h1 class="text-center mt-5">Кирюха и димасик здарова</h1>
-        
-        <!-- Пример кнопки с использованием Bootstrap -->
-        <div class="text-center">
-            <a href="#" class="btn btn-primary">Начать тестирование</a>
-        </div>
+        <form action="/urls" method="post">
+            <div class="form-group">
+                <label for="url">Введите URL:</label>
+                <input type="text" class="form-control" id="url" name="url" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Добавить</button>
+        </form>
     </div>
 </body>
 </html>
