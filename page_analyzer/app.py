@@ -2,7 +2,11 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 import os
 from dotenv import load_dotenv
 import validators
+<<<<<<< HEAD
 from page_analyzer.db import get_db_connection
+=======
+from db import get_db_connection
+>>>>>>> 8e2877d378abd91948eb4bb02fcf54374e10dc4b
 
 
 load_dotenv()
