@@ -1,9 +1,8 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 import os
 from dotenv import load_dotenv
-import psycopg2
 import validators
-from db import get_db_connection
+from page_analyzer.db import get_db_connection
 
 
 load_dotenv()
