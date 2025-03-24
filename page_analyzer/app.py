@@ -45,7 +45,7 @@ def add_url():
 
 
 @app.get('/urls')
-def show_urls():
+def urls():
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute("SELECT * FROM urls ORDER BY created_at DESC")
