@@ -17,7 +17,7 @@ def index():
     return render_template('index.html')
 
 
-@app.post('/urls', methods=['POST'])
+@app.post('/urls')
 def add_url():
     url = request.form['url']
     if not validators.url(url):
@@ -56,7 +56,7 @@ def show_urls():
     return render_template('urls.html', urls=urls)
 
 
-@app.route('/urls/<int:id>')
+@app.get('/urls/<int:id>')
 def show_url(id):
     conn = get_db_connection()
     cur = conn.cursor()
