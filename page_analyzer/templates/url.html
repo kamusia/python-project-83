@@ -1,8 +1,62 @@
 {% extends "base.html" %}
 
+{% block title %}Сайт: {{ url.name }}{% endblock %}
+
 {% block content %}
-<div class="container">
-    <h1>URL: {{ url[1] }}</h1>
-    <p>Добавлен: {{ url[2] }}</p>
+<div class="row">
+    <div class="col-12">
+        <h1>Сайт: {{ url.name }}</h1>
+        
+        <div class="table-responsive mb-5">
+            <table class="table table-bordered" data-test="url">
+                <tbody>
+                    <tr>
+                        <td>ID</td>
+                        <td>{{ url.id }}</td>
+                    </tr>
+                    <tr>
+                        <td>Имя</td>
+                        <td>{{ url.name }}</td>
+                    </tr>
+                    <tr>
+                        <td>Дата создания</td>
+                        <td>{{ url.created_at.strftime('%Y-%m-%d') }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2>Проверки</h2>
+            <form action="{{ url_for('check_url', id=url.id) }}" method="post">
+                <button type="submit" class="btn btn-primary">Запустить проверку</button>
+            </form>
+        </div>
+
+        <table class="table table-bordered table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>ID</th>
+                    <th>Код ответа</th>
+                    <th>h1</th>
+                    <th>title</th>
+                    <th>description</th>
+                    <th>Дата создания</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for check in checks %}
+                <tr>
+                    <td>{{ check.id }}</td>
+                    <td>{{ check.status_code }}</td>
+                    <td>{{ check.h1 if check.h1 }}</td>
+                    <td>{{ check.title if check.title }}</td>
+                    <td>{{ check.description if check.description }}</td>
+                    <td>{{ check.created_at.strftime('%Y-%m-%d') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 {% endblock %}

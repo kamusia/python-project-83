@@ -1,21 +1,19 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Главная страница</title>
-    <!-- Подключение Bootstrap CSS через CDN -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-    <div class="container">
-        <form action="/urls" method="post">
-            <div class="form-group">
-                <label for="url">Введите URL:</label>
-                <input type="text" class="form-control" id="url" name="url" required>
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-12 col-md-8 text-center">
+        <h1 class="display-4 my-4">Бесплатно проверяйте сайты на SEO-пригодность</h1>
+        
+        <form action="{{ url_for('add_url') }}" method="post" class="row g-3">
+            <div class="col-12">
+                <input type="text" name="url" class="form-control form-control-lg" 
+                       placeholder="https://www.example.com" required>
             </div>
-            <button type="submit" class="btn btn-primary">Добавить</button>
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary btn-lg px-4">ПРОВЕРИТЬ</button>
+            </div>
         </form>
     </div>
-</body>
-</html>
+</div>
+{% endblock %}

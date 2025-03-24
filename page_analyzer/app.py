@@ -17,7 +17,7 @@ def index():
     return render_template('index.html')
 
 
-@app.route('/urls', methods=['POST'])
+@app.post('/urls', methods=['POST'])
 def add_url():
     url = request.form['url']
     if not validators.url(url):
@@ -44,7 +44,19 @@ def add_url():
         return redirect(url_for('show_url', id=cur.fetchone()[0]))
 
 
-@app.route('/urls/<int:id>')
+@app.get('/urls')
+def show_urls():
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM urls ORDER BY created_at DESC")
+    urls = cur.fetchall()
+    cur.close()
+    conn.close()
+
+    return render_template('urls.html', urls=urls)
+
+
+@app.get('/urls/<int:id>')
 def show_url(id):
     conn = get_db_connection()
     cur = conn.cursor()
