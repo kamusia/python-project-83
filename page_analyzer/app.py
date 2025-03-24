@@ -56,7 +56,7 @@ def show_urls():
     return render_template('urls.html', urls=urls)
 
 
-@app.get('/urls/<int:id>')
+@app.route('/urls/<int:id>')
 def show_url(id):
     conn = get_db_connection()
     cur = conn.cursor()
