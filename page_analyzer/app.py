@@ -2,7 +2,8 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 import os
 from dotenv import load_dotenv
 import validators
-from page_analyzer.db import get_db_connection
+from page_analyzer.db import get_all_urls, add_url, get_url_by_id, get_db_connection, get_url_by_name
+from page_analyzer.checks import validate_url
 
 
 load_dotenv()
@@ -18,55 +19,47 @@ def index():
 
 
 @app.post('/urls')
-def add_url():
-    url = request.form['url']
-    if not validators.url(url):
-        flash('Некорректный URL', 'error')
-        return redirect(url_for('index'))
-    if len(url) > 255:
-        flash('URL слишком длинный', 'error')
+def post_url():
+    # Получаем и валидируем URL
+    raw_url = request.form.get('url')
+    normalized_url, errors = validate_url(raw_url)
+
+    if errors:
+        for error in errors:
+            flash(error, 'danger')
         return redirect(url_for('index'))
 
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute(
-        "INSERT INTO urls (name) VALUES (%s) ON CONFLICT (name) DO NOTHING RETURNING id", (url,))
-    url_id = cur.fetchone()
-    conn.commit()
-    cur.close()
-    conn.close()
+    try:
+        url_id = add_url(normalized_url)
 
-    if url_id:
-        flash('URL успешно добавлен', 'success')
-        return redirect(url_for('show_url', id=url_id[0]))
-    else:
-        flash('URL уже существует', 'info')
-        return redirect(url_for('show_url', id=cur.fetchone()[0]))
+        if url_id:  # URL был добавлен
+            flash('Страница успешно добавлена', 'success')
+        else:  # URL уже существует
+            existing_url = get_url_by_name(normalized_url)
+            if not existing_url:
+                flash('Ошибка базы данных', 'danger')
+                return redirect(url_for('index'))
+
+            flash('Страница уже существует', 'info')
+            url_id = existing_url['id']
+
+    except Exception as e:  # Обработка ошибок БД
+        flash('Произошла ошибка при сохранении', 'danger')
+        return redirect(url_for('index'))
+
+    return redirect(url_for('show_url', id=url_id))
 
 
 @app.get('/urls')
-def urls():
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute("SELECT * FROM urls ORDER BY created_at DESC")
-    urls = cur.fetchall()
-    cur.close()
-    conn.close()
-
+def show_urls():
+    urls = get_all_urls()
     return render_template('urls.html', urls=urls)
 
 
 @app.get('/urls/<int:id>')
 def show_url(id):
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute("SELECT * FROM urls WHERE id = %s", (id,))
-    url = cur.fetchone()
-    cur.close()
-    conn.close()
-
-    if url:
-        return render_template('url.html', url=url)
-    else:
-        flash('URL не найден', 'error')
+    url = get_url_by_id(id)
+    if not url:
+        flash('Страница не найдена', 'danger')
         return redirect(url_for('index'))
+    return render_template('url.html', url=url)
