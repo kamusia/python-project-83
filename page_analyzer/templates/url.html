@@ -28,12 +28,12 @@
 
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h2>Проверки</h2>
-            <form onsubmit="return false;">
-                <button type="button" class="btn btn-primary">Запустить проверку</button>
+            <form action="{{ url_for('check_url', id=url.id) }}" method="post">
+                <button type="submit" class="btn btn-primary">Запустить проверку</button>
             </form>
         </div>
 
-        <table class="table table-bordered table-hover">
+        <table class="table table-bordered table-hover" data-test="checks">
             <thead class="table-light">
                 <tr>
                     <th>ID</th>
@@ -48,7 +48,7 @@
                 {% for check in checks %}
                 <tr>
                     <td>{{ check.id }}</td>
-                    <td>{{ check.status_code }}</td>
+                    <td>{{ check.status_code if check.status_code }}</td>
                     <td>{{ check.h1 if check.h1 }}</td>
                     <td>{{ check.title if check.title }}</td>
                     <td>{{ check.description if check.description }}</td>

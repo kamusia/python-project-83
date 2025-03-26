@@ -2,8 +2,9 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 import os
 from dotenv import load_dotenv
 import validators
-from page_analyzer.db import get_all_urls, add_url, get_url_by_id, get_db_connection, get_url_by_name
+from page_analyzer.db import get_all_urls, add_url, get_url_by_id, get_url_by_name, add_url_check, get_url_checks
 from page_analyzer.checks import validate_url
+from psycopg2.extras import DictCursor
 
 
 load_dotenv()
@@ -53,6 +54,13 @@ def post_url():
 @app.get('/urls')
 def show_urls():
     urls = get_all_urls()
+
+    for url in urls:
+        checks = get_url_checks(url['id'])
+        if checks:
+            url['last_check'] = checks[0]['created_at']
+            url['status_code'] = checks[0]['status_code']
+
     return render_template('urls.html', urls=urls)
 
 
@@ -63,3 +71,14 @@ def show_url(id):
         flash('Страница не найдена', 'danger')
         return redirect(url_for('index'))
     return render_template('url.html', url=url)
+
+
+@app.post('/urls/<int:id>/checks')
+def check_url(id):
+    try:
+        check_id = add_url_check(id)
+        flash('Страница успешно проверена', 'success')
+    except Exception as e:
+        flash('Произошла ошибка при проверке', 'danger')
+
+    return redirect(url_for('show_url', id=id))

@@ -83,3 +83,29 @@ def get_url_by_name(url_name):
             (url_name,)
         )
         return cur.fetchone()
+
+
+def add_url_check(url_id):
+    """Добавляет проверку URL (пока только с датой)"""
+    conn = get_db_connection()
+    with conn.cursor() as cur:
+        cur.execute(
+            "INSERT INTO url_checks (url_id) VALUES (%s) RETURNING id",
+            (url_id,)
+        )
+        check_id = cur.fetchone()[0]
+        conn.commit()
+        return check_id
+
+
+def get_url_checks(url_id):
+    """Получает все проверки URL с сортировкой по дате (новые сначала)"""
+    conn = get_db_connection()
+    with conn.cursor(cursor_factory=DictCursor) as cur:
+        cur.execute("""
+            SELECT id, status_code, h1, title, description, created_at
+            FROM url_checks
+            WHERE url_id = %s
+            ORDER BY created_at DESC
+        """, (url_id,))
+        return cur.fetchall()
