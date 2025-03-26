@@ -70,7 +70,10 @@ def show_url(id):
     if not url:
         flash('Страница не найдена', 'danger')
         return redirect(url_for('index'))
-    return render_template('url.html', url=url)
+
+    checks = get_url_checks(url['id'])
+
+    return render_template('url.html', url=url, checks=checks)
 
 
 @app.post('/urls/<int:id>/checks')
