@@ -24,13 +24,13 @@ def get_all_urls():
     conn = get_db_connection()
     with conn.cursor(cursor_factory=DictCursor) as cur:
         query = """
-        SELECT 
+        SELECT
             id AS id,
             name AS name,
             created_at AS created_at
-        FROM 
+        FROM
             urls
-        ORDER BY 
+        ORDER BY
             id DESC;
         """
         cur.execute(query)
@@ -85,17 +85,27 @@ def get_url_by_name(url_name):
         return cur.fetchone()
 
 
-def add_url_check(url_id):
-    """Добавляет проверку URL (пока только с датой)"""
+def add_url_check(url_id, status_code=None, h1=None,
+                  title=None, description=None):
+    """
+    Добавляет проверку URL с SEO-данными
+    Возвращает ID созданной записи или None при ошибке
+    """
     conn = get_db_connection()
-    with conn.cursor() as cur:
-        cur.execute(
-            "INSERT INTO url_checks (url_id) VALUES (%s) RETURNING id",
-            (url_id,)
-        )
-        check_id = cur.fetchone()[0]
-        conn.commit()
-        return check_id
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                """INSERT INTO url_checks
+                (url_id, status_code, h1, title, description)
+                VALUES (%s, %s, %s, %s, %s) RETURNING id""",
+                (url_id, status_code, h1, title, description)
+            )
+            check_id = cur.fetchone()[0]
+            conn.commit()
+            return check_id
+    except Exception:
+        conn.rollback()
+        return None
 
 
 def get_url_checks(url_id):

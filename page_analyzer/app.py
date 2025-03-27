@@ -1,10 +1,9 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 import os
 from dotenv import load_dotenv
-import validators
-from page_analyzer.db import get_all_urls, add_url, get_url_by_id, get_url_by_name, add_url_check, get_url_checks
-from page_analyzer.checks import validate_url
-from psycopg2.extras import DictCursor
+from page_analyzer.db import (get_all_urls, add_url, get_url_by_id,
+                              get_url_by_name, add_url_check, get_url_checks)
+from page_analyzer.checks import validate_url, get_url_data
 
 
 load_dotenv()
@@ -44,7 +43,7 @@ def post_url():
             flash('Страница уже существует', 'info')
             url_id = existing_url['id']
 
-    except Exception as e:  # Обработка ошибок БД
+    except Exception:
         flash('Произошла ошибка при сохранении', 'danger')
         return redirect(url_for('index'))
 
@@ -78,10 +77,24 @@ def show_url(id):
 
 @app.post('/urls/<int:id>/checks')
 def check_url(id):
-    try:
-        check_id = add_url_check(id)
+    url = get_url_by_id(id)
+
+    check_data = get_url_data(url['name'])
+    if not check_data:
+        return redirect(url_for('show_url', id=id))
+
+    # Используем существующую функцию
+    check_id = add_url_check(
+        url_id=id,
+        status_code=check_data['status_code'],
+        h1=check_data['h1'],
+        title=check_data['title'],
+        description=check_data['description']
+    )
+
+    if check_id:
         flash('Страница успешно проверена', 'success')
-    except Exception as e:
-        flash('Произошла ошибка при проверке', 'danger')
+    else:
+        flash('Ошибка при сохранении результатов проверки', 'danger')
 
     return redirect(url_for('show_url', id=id))
