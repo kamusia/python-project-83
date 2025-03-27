@@ -57,6 +57,6 @@ def get_url_data(url):
             )
         }
 
-    except requests.RequestException as e:
-        flash(f'Ошибка при проверке сайта', 'danger')
+    except requests.RequestException:
+        flash('Ошибка при проверке сайта', 'danger')
         return None
