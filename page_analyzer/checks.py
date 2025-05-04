@@ -8,7 +8,7 @@ from flask import flash
 def validate_url(url):
     """
     Проверяет и нормализует URL.
-    Возвращает кортеж: (нормализованный_url, список_ошибок)
+    Возвращает: нормализованный URL, ошибки
     """
     errors = []
     normalized_url = url.strip() if url else ''
@@ -23,10 +23,13 @@ def validate_url(url):
     if not validators.url(normalized_url):
         errors.append('Некорректный URL')
 
+    parsed = urlparse(normalized_url)
+    base_url = f"{parsed.scheme}://{parsed.netloc}"
+
     if len(normalized_url) > 255:
         errors.append('URL превышает 255 символов')
 
-    return normalized_url if not errors else None, errors
+    return base_url, errors
 
 
 def get_url_data(url):
