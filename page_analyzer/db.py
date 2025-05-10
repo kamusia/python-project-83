@@ -38,7 +38,7 @@ def get_all_urls():
         ORDER BY urls.id DESC;
         """
         cur.execute(query)
-    return cur.fetchall()
+        return cur.fetchall()
 
 
 def add_url(url_name):
