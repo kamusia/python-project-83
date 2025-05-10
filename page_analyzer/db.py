@@ -19,22 +19,26 @@ def get_all_urls():
     Возвращает список словарей с полями:
     - id: идентификатор URL
     - name: имя сайта
-    - created_at: дата создания (datetime)
+    - last_check: дата последней проверки
+    - status_code: код ответа
     """
     conn = get_db_connection()
     with conn.cursor(cursor_factory=DictCursor) as cur:
         query = """
-        SELECT
-            id AS id,
-            name AS name,
-            created_at AS created_at
-        FROM
-            urls
-        ORDER BY
-            id DESC;
+        SELECT DISTINCT ON (urls.id)
+            urls.id AS id,
+            urls.name AS name,
+            url_checks.created_at AS last_check,
+            url_checks.status_code AS status_code
+        FROM urls
+        LEFT JOIN url_checks ON urls.id = url_checks.url_id
+        AND url_checks.id = (SELECT MAX(id)
+                            FROM url_checks
+                            WHERE url_id = urls.id)
+        ORDER BY urls.id DESC;
         """
         cur.execute(query)
-        return cur.fetchall()
+    return cur.fetchall()
 
 
 def add_url(url_name):
