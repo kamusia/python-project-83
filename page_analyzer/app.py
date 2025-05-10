@@ -53,12 +53,14 @@ def post_url():
 @app.get('/urls')
 def show_urls():
     urls = get_all_urls()
+    count = 0
 
     for url in urls:
+        count += 1
         checks = get_url_checks(url['id'])
         if checks:
-            url['last_check'] = checks[0]['created_at']
-            url['status_code'] = checks[0]['status_code']
+            urls[count]['last_check'] = checks[0]['created_at']
+            urls[count]['status_code'] = checks[0]['status_code']
 
     return render_template('urls.html', urls=urls)
 
