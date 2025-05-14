@@ -27,7 +27,7 @@ def post_url():
     if errors:
         for error in errors:
             flash(error, 'danger')
-        return redirect(url_for('index'))
+        return render_template('index.html', url=raw_url,), 422
 
     try:
         url_id = add_url(normalized_url)
